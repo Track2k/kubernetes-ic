@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-pvc
+  namespace: advanced-workload
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: "standard" # fixed storage class
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  namespace: advanced-workload
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app-container
+          image: nginx:latest
+          volumeMounts:
+            - name: app-storage
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: app-storage
+          persistentVolumeClaim:
+            claimName: app-pvc  # Fixed 
